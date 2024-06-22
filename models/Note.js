@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-const imageSchema = new mongoose.Schema({
-    description: {
+const noteSchema = new mongoose.Schema({
+    text: {
         type: String,
         required: true
     },
@@ -13,14 +13,11 @@ const imageSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    url: {
-        type: String,
-        required: true
-    },
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
 
-module.exports = mongoose.model('Image', imageSchema);
+module.exports = mongoose.model('Note', noteSchema);
+
