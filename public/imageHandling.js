@@ -20,8 +20,8 @@ function updateImageView() {
     const formattedDate = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear().toString().substr(-2)}`;
     
     container.innerHTML = `
-        <p>Bild ${currentImageIndex + 1} von ${currentImages.length} - ${formattedDate} - ${escapeOutput(image.description)}</p>
-        <img src="${escapeOutput(image.url)}" alt="${escapeOutput(image.description)}" onclick="toggleFullscreen('${escapeOutput(image.url)}', '${escapeOutput(image.description)}')">
+        <p>Bild ${currentImageIndex + 1} von ${currentImages.length} - ${formattedDate} - ${image.description}</p>
+        <img src="${image.url}" alt="${image.description}" onclick="toggleFullscreen('${image.url}', '${image.description}')">
     `;
     
     if (currentImages.length > 1) {
@@ -70,21 +70,16 @@ document.getElementById('chooseImage').addEventListener('click', function() {
 
 document.getElementById('imageFile').addEventListener('change', function(e) {
     if (e.target.files.length > 0) {
-        document.getElementById('chooseImage').textContent = 'Bild ausgewaehlt';
+        document.getElementById('chooseImage').textContent = 'Bild ausgewählt';
     }
 });
 
 document.getElementById('saveImage').addEventListener('click', function() {
     const file = document.getElementById('imageFile').files[0];
-    const description = sanitizeInput(document.getElementById('imageDescription').value);
+    const description = document.getElementById('imageDescription').value;
     
-    if (!validateImageFile(file)) {
-        alert('Bitte waehlen Sie ein gueltiges Bild aus (JPEG, PNG, GIF, max. 5MB).');
-        return;
-    }
-
-    if (!description) {
-        alert('Bitte geben Sie eine Beschreibung ein.');
+    if (!file) {
+        alert('Bitte wählen Sie ein Bild aus.');
         return;
     }
 
@@ -103,7 +98,7 @@ document.getElementById('saveImage').addEventListener('click', function() {
         hideDialog('imageInput');
         document.getElementById('imageFile').value = '';
         document.getElementById('imageDescription').value = '';
-        document.getElementById('chooseImage').textContent = 'Bild auswaehlen oder aufnehmen';
+        document.getElementById('chooseImage').textContent = 'Bild auswählen oder aufnehmen';
         loadAllData();
         if (currentImageLocation) {
             showImageDetails(image);
@@ -129,10 +124,9 @@ document.getElementById('editImageDescription').addEventListener('click', functi
     const currentImage = currentImages[currentImageIndex];
     const newDescription = prompt('Neue Beschreibung eingeben:', currentImage.description);
     if (newDescription !== null && newDescription !== currentImage.description) {
-        const sanitizedDescription = sanitizeInput(newDescription);
-        updateImageDescription(currentImage._id, sanitizedDescription)
+        updateImageDescription(currentImage._id, newDescription)
             .then(() => {
-                currentImage.description = sanitizedDescription;
+                currentImage.description = newDescription;
                 updateImageView();
             })
             .catch(error => {
