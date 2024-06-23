@@ -33,10 +33,14 @@ body, html {
 }
 
 #actionModal .modal-content {
-    width: auto;
-    display: inline-block;
+    position: absolute;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
+    width: auto;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
 }
 
 .modal.hidden {
@@ -95,6 +99,21 @@ textarea {
     max-width: 90%;
     max-height: 90%;
     object-fit: contain;
+}
+
+#imageFile {
+    display: none;
+}
+
+#chooseImage {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 @media (max-width: 600px) {

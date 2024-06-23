@@ -1,11 +1,13 @@
 let currentImages = [];
 let currentImageIndex = 0;
+let currentImageLocation = null;
 
 function showImageDetails(image) {
     fetchImagesAtLocation(image.latitude, image.longitude)
         .then(images => {
             currentImages = images;
             currentImageIndex = images.findIndex(img => img._id === image._id);
+            currentImageLocation = { latitude: image.latitude, longitude: image.longitude };
             updateImageView();
             showDialog('imageDetails');
         });
@@ -18,9 +20,8 @@ function updateImageView() {
     const formattedDate = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear().toString().substr(-2)}`;
     
     container.innerHTML = `
-        <p>${formattedDate}</p>
-        <p>${image.description}</p>
-        <img src="${image.url}" alt="${image.description}" onclick="toggleFullscreen(this)">
+        <p>Bild ${currentImageIndex + 1} von ${currentImages.length} - ${formattedDate} - ${image.description}</p>
+        <img src="${image.url}" alt="${image.description}" onclick="toggleFullscreen('${image.url}', '${image.description}')">
     `;
     
     if (currentImages.length > 1) {
@@ -33,18 +34,19 @@ function updateImageView() {
     }
 }
 
-function toggleFullscreen(img) {
-    if (document.fullscreenElement) {
-        document.exitFullscreen();
+function toggleFullscreen(imageUrl, imageAlt) {
+    const existingFullscreen = document.querySelector('.fullscreen-image');
+    if (existingFullscreen) {
+        existingFullscreen.remove();
     } else {
         const fullscreenDiv = document.createElement('div');
         fullscreenDiv.className = 'fullscreen-image';
         const fullImg = document.createElement('img');
-        fullImg.src = img.src;
-        fullImg.alt = img.alt;
-        fullImg.onclick = () => document.exitFullscreen();
+        fullImg.src = imageUrl;
+        fullImg.alt = imageAlt;
         fullscreenDiv.appendChild(fullImg);
-        fullscreenDiv.requestFullscreen();
+        document.body.appendChild(fullscreenDiv);
+        fullscreenDiv.onclick = () => fullscreenDiv.remove();
     }
 }
 
@@ -62,19 +64,29 @@ function nextImage() {
     }
 }
 
+document.getElementById('chooseImage').addEventListener('click', function() {
+    document.getElementById('imageFile').click();
+});
+
+document.getElementById('imageFile').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        document.getElementById('chooseImage').textContent = 'Bild ausgewählt';
+    }
+});
+
 document.getElementById('saveImage').addEventListener('click', function() {
     const file = document.getElementById('imageFile').files[0];
     const description = document.getElementById('imageDescription').value;
     
     if (!file) {
-        alert('Bitte waehlen Sie ein Bild aus.');
+        alert('Bitte wählen Sie ein Bild aus.');
         return;
     }
 
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('latitude', clickedLatLng.lat);
-    formData.append('longitude', clickedLatLng.lng);
+    formData.append('latitude', currentImageLocation ? currentImageLocation.latitude : clickedLatLng.lat);
+    formData.append('longitude', currentImageLocation ? currentImageLocation.longitude : clickedLatLng.lng);
     formData.append('description', description);
 
     fetch('/api/images', {
@@ -83,13 +95,14 @@ document.getElementById('saveImage').addEventListener('click', function() {
     })
     .then(response => response.json())
     .then(image => {
-        L.marker([image.latitude, image.longitude], {icon: imageIcon})
-            .addTo(map)
-            .on('click', () => showImageDetails(image));
         hideDialog('imageInput');
         document.getElementById('imageFile').value = '';
         document.getElementById('imageDescription').value = '';
+        document.getElementById('chooseImage').textContent = 'Bild auswählen oder aufnehmen';
         loadAllData();
+        if (currentImageLocation) {
+            showImageDetails(image);
+        }
     })
     .catch(error => console.error('Error:', error));
 });

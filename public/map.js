@@ -1,4 +1,4 @@
-let map, imageIcon, noteIcon, clickedLatLng, locationMarker;
+let map, imageIcon, noteIcon, clickedLatLng;
 
 function initMap() {
     map = L.map('map').setView([48.0563055, 15.55363], 16);
@@ -30,58 +30,17 @@ function initMap() {
         showActionModal();
     });
 
-    addLocationButton();
     loadAllData();
     loadGPXTrack();
 }
 
-function addLocationButton() {
-    L.Control.LocationButton = L.Control.extend({
-        onAdd: function(map) {
-            var button = L.DomUtil.create('button', 'location-button');
-            button.innerHTML = '??';
-            button.style.fontSize = '20px';
-            button.style.backgroundColor = 'white';
-            button.style.width = '30px';
-            button.style.height = '30px';
-            button.style.border = 'none';
-            button.style.borderRadius = '4px';
-            button.style.cursor = 'pointer';
-            
-            L.DomEvent.on(button, 'click', requestLocation);
-            
-            return button;
-        },
-        onRemove: function(map) {}
+function loadAllData() {
+    map.eachLayer(function(layer) {
+        if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+        }
     });
 
-    L.control.locationButton = function(opts) {
-        return new L.Control.LocationButton(opts);
-    }
-
-    L.control.locationButton({ position: 'topright' }).addTo(map);
-}
-
-function requestLocation() {
-    if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            var lat = position.coords.latitude;
-            var lon = position.coords.longitude;
-            if (locationMarker) {
-                map.removeLayer(locationMarker);
-            }
-            locationMarker = L.marker([lat, lon]).addTo(map);
-            map.setView([lat, lon], 16);
-        }, function(error) {
-            console.error("Error: " + error.message);
-            alert("Konnte Standort nicht abrufen. Bitte überprüfen Sie Ihre Standorteinstellungen.");
-        });
-    } else {
-        alert("Geolocation wird von Ihrem Browser nicht unterstützt.");
-    }
-}
-
-function loadAllData() {
     fetchImages().then(images => {
         images.forEach(image => {
             L.marker([image.latitude, image.longitude], {icon: imageIcon})
@@ -110,6 +69,39 @@ function loadGPXTrack() {
     }).on('loaded', function(e) {
         map.fitBounds(e.target.getBounds());
     }).addTo(map);
+}
+
+function addMarker(lat, lng, isImage = true) {
+    const icon = isImage ? imageIcon : noteIcon;
+    return L.marker([lat, lng], {icon: icon}).addTo(map);
+}
+
+function removeMarker(marker) {
+    map.removeLayer(marker);
+}
+
+function centerMap(lat, lng, zoom = 16) {
+    map.setView([lat, lng], zoom);
+}
+
+function getMapBounds() {
+    return map.getBounds();
+}
+
+function addPolygon(coordinates, options = {}) {
+    return L.polygon(coordinates, options).addTo(map);
+}
+
+function removePolygon(polygon) {
+    map.removeLayer(polygon);
+}
+
+function clearMap() {
+    map.eachLayer(function(layer) {
+        if (layer instanceof L.Marker || layer instanceof L.Polygon) {
+            map.removeLayer(layer);
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', initMap);

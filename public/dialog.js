@@ -7,6 +7,7 @@ function hideDialog(dialogId) {
 }
 
 function showActionModal() {
+    currentImageLocation = null;
     showDialog('actionModal');
 }
 
