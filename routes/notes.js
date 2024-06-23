@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Note = require('../models/Note');
 
-// GET alle Notizen
 router.get('/', async (req, res) => {
     try {
         const notes = await Note.find();
@@ -12,7 +11,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST neue Notiz
 router.post('/', async (req, res) => {
     const note = new Note({
         text: req.body.text,
@@ -28,45 +26,22 @@ router.post('/', async (req, res) => {
     }
 });
 
-// GET einzelne Notiz
-router.get('/:id', getNote, (req, res) => {
-    res.json(res.note);
-});
-
-// PATCH Notiz aktualisieren
-router.patch('/:id', getNote, async (req, res) => {
-    if (req.body.text != null) {
-        res.note.text = req.body.text;
-    }
+router.patch('/:id', async (req, res) => {
     try {
-        const updatedNote = await res.note.save();
+        const updatedNote = await Note.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json(updatedNote);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
 });
 
-// DELETE Notiz
-router.delete('/:id', getNote, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
-        await res.note.remove();
-        res.json({ message: 'Notiz gelöscht' });
+        await Note.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Note deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
-
-async function getNote(req, res, next) {
-    try {
-        const note = await Note.findById(req.params.id);
-        if (note == null) {
-            return res.status(404).json({ message: 'Notiz nicht gefunden' });
-        }
-        res.note = note;
-        next();
-    } catch (err) {
-        return res.status(500).json({ message: err.message });
-    }
-}
 
 module.exports = router;

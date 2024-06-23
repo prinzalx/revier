@@ -1,6 +1,6 @@
-let map, imageIcon, noteIcon, clickedLatLng;
+let map, imageIcon, noteIcon, clickedLatLng, locationMarker;
 
-document.addEventListener('DOMContentLoaded', function() {
+function initMap() {
     map = L.map('map').setView([48.0563055, 15.55363], 16);
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -25,87 +25,63 @@ document.addEventListener('DOMContentLoaded', function() {
         shadowSize: [41, 41]
     });
 
-    loadAllData();
-
     map.on('click', function(e) {
         clickedLatLng = e.latlng;
-        showActionModal(e.latlng);
+        showActionModal();
     });
 
-    L.Control.DeleteAllButton = L.Control.extend({
+    addLocationButton();
+    loadAllData();
+    loadGPXTrack();
+}
+
+function addLocationButton() {
+    L.Control.LocationButton = L.Control.extend({
         onAdd: function(map) {
-            var button = L.DomUtil.create('button', 'delete-all-button');
-            button.innerHTML = 'Alle Daten loeschen';
-            button.style.backgroundColor = 'red';
-            button.style.color = 'white';
-            button.style.padding = '10px';
+            var button = L.DomUtil.create('button', 'location-button');
+            button.innerHTML = '??';
+            button.style.fontSize = '20px';
+            button.style.backgroundColor = 'white';
+            button.style.width = '30px';
+            button.style.height = '30px';
             button.style.border = 'none';
+            button.style.borderRadius = '4px';
             button.style.cursor = 'pointer';
             
-            L.DomEvent.on(button, 'click', function() {
-                if (confirm('Sind Sie sicher, dass Sie alle Daten loeschen moechten?')) {
-                    deleteAllData();
-                }
-            });
+            L.DomEvent.on(button, 'click', requestLocation);
             
             return button;
         },
         onRemove: function(map) {}
     });
 
-    L.control.deleteAllButton = function(opts) {
-        return new L.Control.DeleteAllButton(opts);
+    L.control.locationButton = function(opts) {
+        return new L.Control.LocationButton(opts);
     }
 
-    L.control.deleteAllButton({ position: 'topright' }).addTo(map);
-});
+    L.control.locationButton({ position: 'topright' }).addTo(map);
+}
 
-function showImageDetails(image) {
-    fetchImagesAtLocation(image.latitude, image.longitude)
-        .then(images => {
-            updateImageCarousel(images);
-            showDialog('imageDetails');
+function requestLocation() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+            if (locationMarker) {
+                map.removeLayer(locationMarker);
+            }
+            locationMarker = L.marker([lat, lon]).addTo(map);
+            map.setView([lat, lon], 16);
+        }, function(error) {
+            console.error("Error: " + error.message);
+            alert("Konnte Standort nicht abrufen. Bitte überprüfen Sie Ihre Standorteinstellungen.");
         });
-}
-
-function updateImageCarousel(images) {
-    const carousel = document.getElementById('imageCarousel');
-    carousel.innerHTML = '';
-    images.forEach(img => {
-        const imgElement = document.createElement('div');
-        imgElement.innerHTML = `
-            <p>${img.description}</p>
-            <img src="${img.url}" alt="${img.description}">
-        `;
-        imgElement.dataset.imageId = img._id;
-        carousel.appendChild(imgElement);
-    });
-    if ($('#imageCarousel').hasClass('slick-initialized')) {
-        $('#imageCarousel').slick('unslick');
+    } else {
+        alert("Geolocation wird von Ihrem Browser nicht unterstützt.");
     }
-    $('#imageCarousel').slick({
-        dots: true,
-        infinite: true,
-        speed: 300,
-        slidesToShow: 1,
-        adaptiveHeight: true
-    });
-}
-
-function showNoteDetails(note) {
-    document.getElementById('editNoteText').value = note.text;
-    document.getElementById('saveEditedNote').onclick = () => saveEditedNote(note._id);
-    document.getElementById('deleteNote').onclick = () => deleteNote(note._id);
-    showDialog('noteDetails');
 }
 
 function loadAllData() {
-    map.eachLayer(function(layer) {
-        if (layer instanceof L.Marker) {
-            map.removeLayer(layer);
-        }
-    });
-
     fetchImages().then(images => {
         images.forEach(image => {
             L.marker([image.latitude, image.longitude], {icon: imageIcon})
@@ -123,11 +99,17 @@ function loadAllData() {
     });
 }
 
-function deleteAllData() {
-    fetch('/api/deleteAll', { method: 'DELETE' })
-        .then(response => response.json())
-        .then(data => {
-            loadAllData();
-        })
-        .catch(error => console.error('Error deleting all data:', error));
+function loadGPXTrack() {
+    new L.GPX("20240622130947-33121-data.gpx", {
+        async: true,
+        marker_options: {
+            startIconUrl: '',
+            endIconUrl: '',
+            shadowUrl: ''
+        }
+    }).on('loaded', function(e) {
+        map.fitBounds(e.target.getBounds());
+    }).addTo(map);
 }
+
+document.addEventListener('DOMContentLoaded', initMap);

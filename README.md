@@ -1,59 +1,63 @@
 # Revier - Bilderkarte
 
-Revier ist eine interaktive Webanwendung, die es Benutzern ermÃ¶glicht, Bilder und Notizen auf einer Satellitenkarte zu platzieren und zu verwalten.
+Revier ist eine interaktive Webanwendung, die es Benutzern ermöglicht, Bilder und Notizen auf einer Karte zu platzieren und zu verwalten. Die Anwendung ist besonders nützlich für die Dokumentation von Beobachtungen oder Aktivitäten in bestimmten geografischen Gebieten.
 
 ## Funktionen
 
-- Anzeige einer Satellitenkarte
-- Hochladen und Platzieren von Bildern auf der Karte
-- HinzufÃ¼gen von Notizen an beliebigen Stellen auf der Karte
-- Unterschiedliche Marker fÃ¼r Bilder und Notizen
-- VergrÃ¶ÃŸerte Darstellung von Bildern bei erneutem Antippen
-- Bearbeiten und LÃ¶schen von Notizen
-- LÃ¶schen von Bildern mit BestÃ¤tigung
+1. **Interaktive Karte**: Basierend auf Leaflet.js mit Satellitenbildern von Esri.
+2. **Bilder hinzufügen**: Benutzer können Bilder hochladen und sie an spezifischen Koordinaten auf der Karte platzieren.
+3. **Notizen hinzufügen**: Textnotizen können ebenfalls an beliebigen Stellen auf der Karte hinzugefügt werden.
+4. **Bildergalerie**: Mehrere Bilder an einem Standort werden in einer durchblätterbaren Galerie angezeigt.
+5. **Bearbeiten und Löschen**: Sowohl Bilder als auch Notizen können bearbeitet oder gelöscht werden.
+6. **Vollbildanzeige**: Bilder können durch Anklicken in Vollbildgröße angezeigt werden.
+7. **GPX-Track-Anzeige**: Möglichkeit, einen GPX-Track auf der Karte anzuzeigen (z.B. für Reviergrenzen).
 
-## Installation
+## Technische Details
+
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Kartenbibliothek**: Leaflet.js
+- **Backend**: Node.js mit Express.js
+- **Datenbank**: MongoDB
+- **Container**: Docker
+
+## Installation und Setup
 
 1. Klonen Sie das Repository:
    ```
    git clone https://github.com/yourusername/revier.git
    ```
 
-2. Installieren Sie die AbhÃ¤ngigkeiten:
+2. Navigieren Sie in das Projektverzeichnis:
    ```
    cd revier
-   npm install
    ```
 
-3. Erstellen Sie eine `.env` Datei im Hauptverzeichnis und fÃ¼gen Sie Ihre MongoDB-Verbindungszeichenfolge hinzu:
+3. Erstellen Sie eine `.env` Datei im Wurzelverzeichnis und fügen Sie die MongoDB-Verbindungs-URI hinzu:
    ```
-   MONGODB_URI=mongodb://localhost:27017/revier
-   ```
-
-4. Starten Sie den Server:
-   ```
-   npm start
+   MONGODB_URI=mongodb://mongo:27017/revier
    ```
 
-5. Ã–ffnen Sie die Anwendung in Ihrem Browser unter `http://localhost:5000`.
+4. Bauen und starten Sie die Docker-Container:
+   ```
+   docker-compose up -d --build
+   ```
+
+5. Die Anwendung sollte nun unter `http://localhost:5000` erreichbar sein.
 
 ## Verwendung
 
-- Klicken Sie auf die Karte, um ein Bild hochzuladen oder eine Notiz hinzuzufÃ¼gen.
-- Klicken Sie auf einen Marker, um Details anzuzeigen.
-- Doppelklicken Sie auf einen Bildmarker, um das Bild vergrÃ¶ÃŸert anzuzeigen.
-- Verwenden Sie die SchaltflÃ¤chen in den Popups, um Notizen zu bearbeiten oder Elemente zu lÃ¶schen.
+- Klicken Sie auf die Karte, um ein Bild oder eine Notiz hinzuzufügen.
+- Klicken Sie auf einen Marker, um Details anzuzeigen, zu bearbeiten oder zu löschen.
+- In der Bildansicht können Sie durch mehrere Bilder am selben Standort blättern.
+- Klicken Sie auf ein Bild, um es in Vollbildgröße anzuzeigen.
 
-## Technologien
+## Entwicklung
 
-- Frontend: HTML, CSS, JavaScript, Leaflet.js
-- Backend: Node.js, Express.js
-- Datenbank: MongoDB
-
-## Beitrag
-
-Pull Requests sind willkommen. FÃ¼r grÃ¶ÃŸere Ã„nderungen Ã¶ffnen Sie bitte zuerst ein Issue, um zu besprechen, was Sie Ã¤ndern mÃ¶chten.
+- `public/`: Enthält alle Frontend-Dateien (HTML, CSS, JavaScript)
+- `routes/`: Enthält die API-Routen für Bilder und Notizen
+- `models/`: Enthält die Mongoose-Modelle für Bilder und Notizen
+- `server.js`: Der Hauptserver-Einstiegspunkt
 
 ## Lizenz
 
-[MIT](https://choosealicense.com/licenses/mit/)
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe `LICENSE` Datei für Details.

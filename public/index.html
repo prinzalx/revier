@@ -5,22 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revier - Bilderkarte</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
     <div id="map"></div>
-    
     <div id="actionModal" class="modal hidden">
         <div class="modal-content">
-            <h2>Was m&ouml;chten Sie hinzuf&uuml;gen?</h2>
             <button id="addImage">Bild</button>
             <button id="addNote">Notiz</button>
             <button id="cancelAction">Abbrechen</button>
         </div>
     </div>
-
     <div id="imageInput" class="modal hidden">
         <div class="modal-content">
             <textarea id="imageDescription" placeholder="Beschreibung des Bildes..."></textarea>
@@ -29,7 +24,6 @@
             <button id="cancelImage">Abbrechen</button>
         </div>
     </div>
-
     <div id="noteInput" class="modal hidden">
         <div class="modal-content">
             <textarea id="noteText" placeholder="Ihre Notiz hier..."></textarea>
@@ -37,38 +31,32 @@
             <button id="cancelNote">Abbrechen</button>
         </div>
     </div>
-
     <div id="imageDetails" class="modal hidden">
         <div class="modal-content">
             <div id="imageCarousel"></div>
             <div id="imageActions">
                 <button id="editImageDescription">Beschreibung bearbeiten</button>
-                <button id="addImageToSet">Bild hinzuf&uuml;gen</button>
-                <button id="deleteImage">L&ouml;schen</button>
-                <button id="closeImageDetails">Schlie&szlig;en</button>
+                <button id="addImageToSet">Bild hinzufuegen</button>
+                <button id="deleteImage">Loeschen</button>
+                <button id="closeImageDetails">Schliessen</button>
             </div>
         </div>
     </div>
-
     <div id="noteDetails" class="modal hidden">
         <div class="modal-content">
             <textarea id="editNoteText"></textarea>
             <button id="saveEditedNote">Speichern</button>
-            <button id="deleteNote">L&ouml;schen</button>
-            <button id="closeNoteDetails">Schlie&szlig;en</button>
+            <button id="deleteNote">Loeschen</button>
+            <button id="closeNoteDetails">Schliessen</button>
         </div>
     </div>
-
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
     <script src="api.js"></script>
     <script src="map.js"></script>
     <script src="dialog.js"></script>
-    <script src="uploadImage.js"></script>
-    <script src="addNote.js"></script>
-    <script src="deleteImage.js"></script>
-    <script src="editNote.js"></script>
-    <script src="deleteNote.js"></script>
+    <script src="imageHandling.js"></script>
+    <script src="noteHandling.js"></script>
+    <script src="dataManagement.js"></script>
 </body>
 </html>
