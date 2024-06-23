@@ -3,72 +3,40 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
-const helmet = require('helmet');
-const xss = require('xss-clean');
 const mongoSanitize = require('express-mongo-sanitize');
+const sanitizeHtml = require('sanitize-html');
 require('dotenv').config();
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
-app.use(xss());
-app.use(mongoSanitize());
-
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(mongoSanitize());
 
-// Multer configuration for image upload
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, path.join(__dirname, 'public', 'uploads'));
-    },
-    filename: function(req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+// Sanitize middleware
+app.use((req, res, next) => {
+  if (req.body) {
+    for (let key in req.body) {
+      if (typeof req.body[key] === 'string') {
+        req.body[key] = sanitizeHtml(req.body[key]);
+      }
     }
+  }
+  next();
 });
 
-const upload = multer({ 
-    storage: storage,
-    fileFilter: function(req, file, cb) {
-        const filetypes = /jpeg|jpg|png|gif/;
-        const mimetype = filetypes.test(file.mimetype);
-        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-        if (mimetype && extname) {
-            return cb(null, true);
-        }
-        cb(new Error("Error: File upload only supports the following filetypes - " + filetypes));
-    },
-    limits: { fileSize: 5000000 } // 5MB
+// Set Content Security Policy
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' https://unpkg.com https://cdnjs.cloudflare.com; img-src 'self' data: https://server.arcgisonline.com"
+  );
+  next();
 });
 
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-const imageRoutes = require('./routes/images')(upload);
-const noteRoutes = require('./routes/notes');
-
-app.use('/api/images', imageRoutes);
-app.use('/api/notes', noteRoutes);
-
-app.delete('/api/deleteAll', async (req, res) => {
-    try {
-        await mongoose.connection.db.dropDatabase();
-        res.json({ message: 'All data deleted' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'An unexpected error occurred' });
-});
+// Rest of your server code...
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
