@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Note = require('../models/Note');
+const { validateCoordinates } = require('../utils/validation');
 
 router.get('/', async (req, res) => {
     try {
@@ -12,6 +13,10 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+    if (!validateCoordinates(req.body.latitude, req.body.longitude)) {
+        return res.status(400).json({ message: 'Invalid coordinates' });
+    }
+
     const note = new Note({
         text: req.body.text,
         latitude: req.body.latitude,
@@ -28,7 +33,14 @@ router.post('/', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
     try {
-        const updatedNote = await Note.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const note = await Note.findById(req.params.id);
+        if (!note) return res.status(404).json({ message: 'Note not found' });
+
+        if (req.body.text) {
+            note.text = req.body.text;
+        }
+
+        const updatedNote = await note.save();
         res.json(updatedNote);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -37,7 +49,10 @@ router.patch('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        await Note.findByIdAndDelete(req.params.id);
+        const note = await Note.findById(req.params.id);
+        if (!note) return res.status(404).json({ message: 'Note not found' });
+
+        await note.remove();
         res.json({ message: 'Note deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });

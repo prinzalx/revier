@@ -6,7 +6,7 @@ function showNoteDetails(note) {
 }
 
 function saveEditedNote(noteId) {
-    const newText = document.getElementById('editNoteText').value;
+    const newText = sanitizeInput(document.getElementById('editNoteText').value);
     
     if (!newText.trim()) {
         alert('Die Notiz darf nicht leer sein.');
@@ -39,7 +39,7 @@ function deleteNote(noteId) {
 }
 
 document.getElementById('saveNote').addEventListener('click', function() {
-    const text = document.getElementById('noteText').value;
+    const text = sanitizeInput(document.getElementById('noteText').value);
     
     if (!text.trim()) {
         alert('Bitte geben Sie eine Notiz ein.');

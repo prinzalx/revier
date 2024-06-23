@@ -6,6 +6,7 @@
     <title>Revier - Bilderkarte</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
 </head>
 <body>
     <div id="map"></div>
@@ -18,16 +19,16 @@
     </div>
     <div id="imageInput" class="modal hidden">
         <div class="modal-content">
-            <textarea id="imageDescription" placeholder="Beschreibung des Bildes..."></textarea>
+            <textarea id="imageDescription" placeholder="Beschreibung des Bildes..." maxlength="1000"></textarea>
             <input type="file" id="imageFile" accept="image/*">
-            <button id="chooseImage">Bild auswählen oder aufnehmen</button>
+            <button id="chooseImage">Bild auswaehlen oder aufnehmen</button>
             <button id="saveImage">Speichern</button>
             <button id="cancelImage">Abbrechen</button>
         </div>
     </div>
     <div id="noteInput" class="modal hidden">
         <div class="modal-content">
-            <textarea id="noteText" placeholder="Ihre Notiz hier..."></textarea>
+            <textarea id="noteText" placeholder="Ihre Notiz hier..." maxlength="1000"></textarea>
             <button id="saveNote">Speichern</button>
             <button id="cancelNote">Abbrechen</button>
         </div>
@@ -45,7 +46,7 @@
     </div>
     <div id="noteDetails" class="modal hidden">
         <div class="modal-content">
-            <textarea id="editNoteText"></textarea>
+            <textarea id="editNoteText" maxlength="1000"></textarea>
             <button id="saveEditedNote">Speichern</button>
             <button id="deleteNote">Loeschen</button>
             <button id="closeNoteDetails">Schliessen</button>
@@ -53,6 +54,7 @@
     </div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+    <script src="utils.js"></script>
     <script src="api.js"></script>
     <script src="map.js"></script>
     <script src="dialog.js"></script>
